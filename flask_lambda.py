@@ -39,7 +39,6 @@ __version__ = '0.0.4'
 
 def make_environ(event):
     environ = {}
-    print('event', event)
     # key might be there but set to None
     headers = event.get('headers', {}) or {}
     for hdr_name, hdr_value in headers.items():
@@ -100,13 +99,11 @@ class FlaskLambda(Flask):
     def __call__(self, event, context):
         try:
             if 'httpMethod' not in event:
-                print('call as flask app')
                 # In this "context" `event` is `environ` and
                 # `context` is `start_response`, meaning the request didn't
                 # occur via API Gateway and Lambda
                 return super(FlaskLambda, self).__call__(event, context)
 
-            print('call as aws lambda')
             response = LambdaResponse()
 
             body = next(self.wsgi_app(
@@ -121,9 +118,8 @@ class FlaskLambda(Flask):
             }
 
         except Exception as e:
-            print('unexpected error', e)
             return {
                 'statusCode': 500,
                 'headers': {},
-                'body': 'internal server error'
+                'body': 'Internal server error'
             }
